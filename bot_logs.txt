@@ -1,0 +1,63 @@
+28.01.2026 17:01:22,36 - Bot skripti ishga tushmoqda 
+28.01.2026 17:01:22,37 - Bot ishga tushmoqda... 
+2026-01-28 17:01:23,187 - __main__ - INFO - Bot starting...
+2026-01-28 17:01:23,187 - __main__ - INFO - Token tekshirilmoqda: 84174...qZmug
+2026-01-28 17:01:23,188 - __main__ - INFO - Required channels: ['@kulgu_178']
+2026-01-28 17:01:23,188 - __main__ - INFO - Required channel URLs: ['https://t.me/kulgu_178']
+C:\Users\user\Desktop\Telegram bot\main.py:217: DeprecationWarning: 'asyncio.WindowsSelectorEventLoopPolicy' is deprecated and slated for removal in Python 3.16
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+C:\Users\user\Desktop\Telegram bot\main.py:217: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+2026-01-28 17:01:23,850 - __main__ - INFO - Bot #1 ishga tushmoqda...
+2026-01-28 17:01:23,851 - __main__ - ERROR - Tarmoqdan tashqari xatolik #1 (Jami: #1): 'HTTPXRequest' object has no attribute 'connect_timeout'
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\Telegram bot\main.py", line 253, in main
+    logger.info(f"Tarmoq ulanishini tekshiryapman. Timeout: {request.connect_timeout}s")
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'HTTPXRequest' object has no attribute 'connect_timeout'
+2026-01-28 17:01:23,853 - __main__ - INFO - Qayta urunishga 11.16 soniyadan keyin... (Maks: 10 ta urinish)
+2026-01-28 17:01:35,015 - __main__ - INFO - Application muvaffaqiyatli yopilindi
+2026-01-28 17:01:35,016 - __main__ - INFO - Event loop muvaffaqiyatli yopilindi
+2026-01-28 17:01:35,665 - __main__ - INFO - Bot #2 ishga tushmoqda...
+2026-01-28 17:01:35,665 - __main__ - ERROR - Tarmoqdan tashqari xatolik #2 (Jami: #2): 'HTTPXRequest' object has no attribute 'connect_timeout'
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\Telegram bot\main.py", line 253, in main
+    logger.info(f"Tarmoq ulanishini tekshiryapman. Timeout: {request.connect_timeout}s")
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'HTTPXRequest' object has no attribute 'connect_timeout'
+2026-01-28 17:01:35,666 - __main__ - INFO - Qayta urunishga 20.95 soniyadan keyin... (Maks: 10 ta urinish)
+28.01.2026 17:01:55,45 - Bot skripti ishga tushmoqda 
+28.01.2026 17:01:55,45 - Bot ishga tushmoqda... 
+2026-01-28 17:01:56,079 - __main__ - INFO - Bot starting...
+2026-01-28 17:01:56,079 - __main__ - INFO - Token tekshirilmoqda: 84174...qZmug
+2026-01-28 17:01:56,079 - __main__ - INFO - Required channels: ['@kulgu_178']
+2026-01-28 17:01:56,079 - __main__ - INFO - Required channel URLs: ['https://t.me/kulgu_178']
+C:\Users\user\Desktop\Telegram bot\main.py:217: DeprecationWarning: 'asyncio.WindowsSelectorEventLoopPolicy' is deprecated and slated for removal in Python 3.16
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+C:\Users\user\Desktop\Telegram bot\main.py:217: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+2026-01-28 17:01:56,689 - __main__ - INFO - Bot #1 ishga tushmoqda...
+2026-01-28 17:01:56,689 - __main__ - INFO - Tarmoq ulanishini tekshiryapman. Timeoutlar sozlangan: connect=180s, read=180s, write=180s, pool=180s
+2026-01-28 17:01:57,243 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getMe "HTTP/1.1 200 OK"
+2026-01-28 17:01:57,396 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/deleteWebhook "HTTP/1.1 200 OK"
+2026-01-28 17:01:57,398 - telegram.ext.Application - INFO - Application started
+2026-01-28 17:02:47,853 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getUpdates "HTTP/1.1 200 OK"
+2026-01-28 17:03:48,439 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getUpdates "HTTP/1.1 200 OK"
+2026-01-28 17:04:49,061 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getUpdates "HTTP/1.1 200 OK"
+2026-01-28 17:05:49,553 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getUpdates "HTTP/1.1 200 OK"
+2026-01-28 17:06:50,104 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getUpdates "HTTP/1.1 200 OK"
+28.01.2026 17:18:12,70 - Bot skripti ishga tushmoqda 
+28.01.2026 17:18:12,70 - Bot ishga tushmoqda... 
+2026-01-28 17:18:13,256 - __main__ - INFO - Bot starting...
+2026-01-28 17:18:13,256 - __main__ - INFO - Token tekshirilmoqda: 84174...qZmug
+2026-01-28 17:18:13,256 - __main__ - INFO - Required channels: ['@kulgu_178']
+2026-01-28 17:18:13,256 - __main__ - INFO - Required channel URLs: ['https://t.me/kulgu_178']
+C:\Users\user\Desktop\Telegram bot\main.py:217: DeprecationWarning: 'asyncio.WindowsSelectorEventLoopPolicy' is deprecated and slated for removal in Python 3.16
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+C:\Users\user\Desktop\Telegram bot\main.py:217: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+2026-01-28 17:18:13,687 - __main__ - INFO - Bot #1 ishga tushmoqda...
+2026-01-28 17:18:13,687 - __main__ - INFO - Tarmoq ulanishini tekshiryapman. Timeoutlar sozlangan: connect=180s, read=180s, write=180s, pool=180s
+2026-01-28 17:18:14,234 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/getMe "HTTP/1.1 200 OK"
+2026-01-28 17:18:14,389 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8417486941:AAG1salF25krsrBnY9MFoZw8eum3c4qZmug/deleteWebhook "HTTP/1.1 200 OK"
+2026-01-28 17:18:14,391 - telegram.ext.Application - INFO - Application started
