@@ -126,46 +126,45 @@ def run_flask():
     port = int(os.getenv("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
+# Adminni tekshirish uchun universal funksiya
+def is_admin(user_id: int) -> bool:
+    return user_id in ADMIN_IDS or user_id == 6849709091
+
 @bot.message_handler(commands=['admin'])
 def admin_panel(message):
     user_id = message.from_user.id
     chat_id = message.chat.id
-    logger.info(f"Admin panel so'rovi: User ID {user_id}, Chat ID {chat_id}")
+    logger.info(f"Admin panel so'rovi: User ID {user_id}")
     
-    # Adminni tekshirish (user_id yoki chat_id ADMIN_IDS ro'yxatida bo'lishi kerak)
-    # Shuningdek, 6849709091 ID-si har doim admin bo'ladi
-    if user_id in ADMIN_IDS or chat_id in ADMIN_IDS or user_id == 6849709091:
+    if is_admin(user_id):
         kb = types.InlineKeyboardMarkup()
         kb.add(types.InlineKeyboardButton("📢 Kanallarni boshqarish", callback_data="manage_channels"))
         kb.add(types.InlineKeyboardButton("🎬 Kino qo'shish", callback_data="add_movie_start"))
         kb.add(types.InlineKeyboardButton("📊 Statistika", callback_data="admin_stats"))
         
         bot.send_message(chat_id, "👨‍💻 **Admin Panel**\n\nKerakli bo'limni tanlang:", reply_markup=kb)
-        logger.info(f"Admin panel ko'rsatildi: {user_id}")
     else:
         bot.reply_to(message, f"Siz admin emassiz! ❌\nSizning ID: `{user_id}`")
-        logger.warning(f"Ruxsat berilmadi: User ID {user_id}, Chat ID {chat_id}. ADMIN_IDS: {ADMIN_IDS}")
 
-@bot.callback_query_handler(func=lambda c: c.data == "manage_channels")
 def manage_channels(callback):
-    if callback.from_user.id not in ADMIN_IDS: return
+    if not is_admin(callback.from_user.id): return
     
     channels, urls = database.get_channels()
     text = "📢 **Majburiy kanallar ro'yxati:**\n\n"
     kb = types.InlineKeyboardMarkup(row_width=2)
     
     for i, (ch, url) in enumerate(zip(channels, urls)):
-        text += f"{i+1}. {ch}\n"
+        text += f"{i+1}. `{ch}`\n"
         kb.add(types.InlineKeyboardButton(f"❌ {i+1}-ni o'chirish", callback_data=f"remove_ch_{i}"))
     
     kb.row(types.InlineKeyboardButton("➕ Kanal qo'shish", callback_data="add_channel_start"))
     kb.row(types.InlineKeyboardButton("⬅️ Orqaga", callback_data="admin_back"))
     
-    bot.edit_message_text(text, callback.message.chat.id, callback.message.message_id, reply_markup=kb)
+    bot.edit_message_text(text, callback.message.chat.id, callback.message.message_id, reply_markup=kb, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda c: c.data.startswith("remove_ch_"))
 def remove_channel_callback(callback):
-    if callback.from_user.id not in ADMIN_IDS: return
+    if not is_admin(callback.from_user.id): return
     index = int(callback.data.split('_')[2])
     if database.remove_channel(index):
         global REQUIRED_CHANNELS, REQUIRED_CHANNEL_URLS
@@ -175,11 +174,12 @@ def remove_channel_callback(callback):
 
 @bot.callback_query_handler(func=lambda c: c.data == "add_channel_start")
 def add_channel_start(callback):
-    if callback.from_user.id not in ADMIN_IDS: return
+    if not is_admin(callback.from_user.id): return
     msg = bot.send_message(callback.message.chat.id, "Kanal ID va havolasini quyidagi formatda yuboring:\n\n`-1001234567890, https://t.me/kanal_link`")
     bot.register_next_step_handler(msg, process_add_channel)
 
 def process_add_channel(message):
+    if not is_admin(message.from_user.id): return
     try:
         ch_id, url = message.text.split(',')
         if database.add_channel(ch_id.strip(), url.strip()):
@@ -193,7 +193,7 @@ def process_add_channel(message):
 
 @bot.callback_query_handler(func=lambda c: c.data == "add_movie_start")
 def add_movie_start(callback):
-    if callback.from_user.id not in ADMIN_IDS: return
+    if not is_admin(callback.from_user.id): return
     msg = bot.send_message(callback.message.chat.id, "Kino ma'lumotlarini quyidagi formatda yuboring:\n\n`kod, fayl_id, sarlavha`\n\nMasalan:\n`101, BAACAgIA..., Qasoskorlar`")
     bot.register_next_step_handler(msg, process_add_movie)
 
@@ -251,24 +251,27 @@ def on_check_subscription(callback):
     
     logger.info(f"🔍 Professional obuna tekshiruvi: User {user_id}")
     
-    for channel in REQUIRED_CHANNELS:
-        ch_id = channel.strip()
+    # Kanallarni bazadan yangilab olamiz (har ehtimolga qarshi)
+    channels, _ = database.get_channels()
+    
+    for ch_id in channels:
+        ch_id = ch_id.strip()
         if not ch_id: continue
         
         try:
-            # Telegram API orqali qat'iy tekshirish
-            member = bot.get_chat_member(ch_id, user_id)
+            # ID ni songa o'tkazish (Telegram ID lari son bo'lishi kerak)
+            target_id = int(ch_id) if ch_id.replace('-', '').isdigit() else ch_id
+            
+            member = bot.get_chat_member(target_id, user_id)
             status = getattr(member, "status", None)
             
             logger.info(f"📊 Kanal {ch_id} | Status: {status}")
             
-            # Faqatgina a'zo, admin yoki yaratuvchi bo'lsa o'tadi
             if status not in ['member', 'administrator', 'creator']:
                 not_subscribed.append(ch_id)
         except Exception as e:
             logger.error(f"⚠️ Kanal {ch_id} tekshirishda API xatolik: {e}")
-            # Agar bot admin bo'lmasa, bu yerda xatolik beradi. 
-            # Professional yondashuv: xatolik bo'lsa ham foydalanuvchini o'tkazmaslik (majburiy tartib)
+            # Agar bot kanalda bo'lmasa yoki admin bo'lmasa, bu yerda xatolik chiqadi
             not_subscribed.append(ch_id)
 
     if not not_subscribed:
@@ -282,31 +285,34 @@ def on_check_subscription(callback):
         except Exception:
             bot.answer_callback_query(callback.id, "✅ Hammasi joyida! Kino kodini yuboring.", show_alert=True)
     else:
-        # Foydalanuvchiga qat'iy ogohlantirish
+        # Qaysi kanalga a'zo bo'lmaganini aniqlash
         bot.answer_callback_query(
             callback.id, 
-            "❌ Xatolik! Siz hali barcha kanallarga a'zo bo'lmadingiz.\n\nIltimos, barcha kanallarga ulaning va qayta urunib ko'ring!", 
+            "❌ Xatolik! Siz hali barcha kanallarga a'zo bo'lmadingiz yoki bot u kanallarda admin emas.\n\nIltimos, qayta tekshiring!", 
             show_alert=True
         )
 
 def is_subscribed(user_id: int) -> bool:
-    # Keshni tekshirish (server yuklamasini kamaytirish uchun)
+    # Adminlar uchun har doim ruxsat (debug va test uchun)
+    if is_admin(user_id):
+        return True
+        
     current_time = time.time()
     if user_id in user_subscription_cache and (current_time - user_subscription_cache[user_id]) < SUBSCRIPTION_CHECK_INTERVAL:
         return True
         
-    # Professional qat'iy tekshirish logikasi
-    for channel in REQUIRED_CHANNELS:
-        ch_id = channel.strip()
+    channels, _ = database.get_channels()
+    for ch_id in channels:
+        ch_id = ch_id.strip()
         if not ch_id: continue
         
         try:
-            member = bot.get_chat_member(ch_id, user_id)
+            target_id = int(ch_id) if ch_id.replace('-', '').isdigit() else ch_id
+            member = bot.get_chat_member(target_id, user_id)
             if member.status not in ['member', 'administrator', 'creator']:
                 return False
         except Exception as e:
             logger.error(f"🚫 is_subscribed API Error ({ch_id}): {e}")
-            # API xatolik bo'lsa, xavfsizlik yuzasidan False qaytaramiz
             return False
             
     user_subscription_cache[user_id] = current_time
