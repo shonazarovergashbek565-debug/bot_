@@ -247,8 +247,20 @@ def cmd_start(message):
 @bot.callback_query_handler(func=lambda c: c.data == "check_subscription")
 def on_check_subscription(callback):
     user_id = callback.from_user.id
-    not_subscribed = []
     
+    # Adminlar har doim o'tadi
+    if user_id in ADMIN_IDS or user_id == 6849709091:
+        try:
+            bot.edit_message_text(
+                chat_id=callback.message.chat.id,
+                message_id=callback.message.message_id,
+                text="✅ Tabriklaymiz! Siz adminsiz, barcha kanallarga ruxsat berildi.\n\n🎬 Endi kino kodlarini yuborishingiz mumkin."
+            )
+        except Exception:
+            bot.answer_callback_query(callback.id, "✅ Admin ruxsati faol!", show_alert=True)
+        return
+
+    not_subscribed = []
     logger.info(f"Obunani tekshirish: User {user_id}, Kanallar: {REQUIRED_CHANNELS}")
     
     for channel in REQUIRED_CHANNELS:
