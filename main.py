@@ -247,80 +247,70 @@ def cmd_start(message):
 @bot.callback_query_handler(func=lambda c: c.data == "check_subscription")
 def on_check_subscription(callback):
     user_id = callback.from_user.id
-    
-    # Adminlar har doim o'tadi
-    if user_id in ADMIN_IDS or user_id == 6849709091:
-        try:
-            bot.edit_message_text(
-                chat_id=callback.message.chat.id,
-                message_id=callback.message.message_id,
-                text="✅ Tabriklaymiz! Siz adminsiz, barcha kanallarga ruxsat berildi.\n\n🎬 Endi kino kodlarini yuborishingiz mumkin."
-            )
-        except Exception:
-            bot.answer_callback_query(callback.id, "✅ Admin ruxsati faol!", show_alert=True)
-        return
-
     not_subscribed = []
-    logger.info(f"Obunani tekshirish: User {user_id}, Kanallar: {REQUIRED_CHANNELS}")
+    
+    logger.info(f"🔍 Professional obuna tekshiruvi: User {user_id}")
     
     for channel in REQUIRED_CHANNELS:
         ch_id = channel.strip()
         if not ch_id: continue
         
         try:
+            # Telegram API orqali qat'iy tekshirish
             member = bot.get_chat_member(ch_id, user_id)
             status = getattr(member, "status", None)
-            logger.info(f"Kanal {ch_id} holati: {status}")
+            
+            logger.info(f"📊 Kanal {ch_id} | Status: {status}")
+            
+            # Faqatgina a'zo, admin yoki yaratuvchi bo'lsa o'tadi
             if status not in ['member', 'administrator', 'creator']:
                 not_subscribed.append(ch_id)
         except Exception as e:
-            logger.error(f"Kanal {ch_id} ni tekshirishda xatolik: {e}")
-            # Agar bot admin bo'lmasa yoki kanal topilmasa, foydalanuvchini qiynamaslik uchun o'tkazib yuboramiz
-            # Lekin bu xavfli bo'lishi mumkin, shuning uchun faqat log qilamiz
-            # not_subscribed.append(ch_id) 
+            logger.error(f"⚠️ Kanal {ch_id} tekshirishda API xatolik: {e}")
+            # Agar bot admin bo'lmasa, bu yerda xatolik beradi. 
+            # Professional yondashuv: xatolik bo'lsa ham foydalanuvchini o'tkazmaslik (majburiy tartib)
+            not_subscribed.append(ch_id)
 
     if not not_subscribed:
         try:
+            user_subscription_cache[user_id] = time.time()
             bot.edit_message_text(
                 chat_id=callback.message.chat.id,
                 message_id=callback.message.message_id,
-                text="✅ Tabriklaymiz! Barcha kanallarga a'zo bo'ldingiz.\n\n🎬 Endi kino kodlarini yuborishingiz mumkin."
+                text="✅ **Tabriklaymiz!**\n\nSiz barcha majburiy kanallarga muvaffaqiyatli a'zo bo'ldingiz. Endi botdan cheksiz foydalanishingiz mumkin!\n\n🎬 **Kino kodini yuboring:**"
             )
         except Exception:
-            bot.answer_callback_query(callback.id, "✅ Hammasi joyida!", show_alert=True)
+            bot.answer_callback_query(callback.id, "✅ Hammasi joyida! Kino kodini yuboring.", show_alert=True)
     else:
-        # Qaysi kanalga a'zo bo'lmaganini ko'rsatamiz (debug uchun qulay)
-        bot.answer_callback_query(callback.id, f"Siz hali barcha kanallarga a'zo bo'lmadingiz. ❌", show_alert=True)
+        # Foydalanuvchiga qat'iy ogohlantirish
+        bot.answer_callback_query(
+            callback.id, 
+            "❌ Xatolik! Siz hali barcha kanallarga a'zo bo'lmadingiz.\n\nIltimos, barcha kanallarga ulaning va qayta urunib ko'ring!", 
+            show_alert=True
+        )
 
 def is_subscribed(user_id: int) -> bool:
-    # Adminlar har doim o'tadi
-    if user_id in ADMIN_IDS or user_id == 6849709091:
-        return True
-        
+    # Keshni tekshirish (server yuklamasini kamaytirish uchun)
     current_time = time.time()
     if user_id in user_subscription_cache and (current_time - user_subscription_cache[user_id]) < SUBSCRIPTION_CHECK_INTERVAL:
         return True
         
-    not_subscribed = []
+    # Professional qat'iy tekshirish logikasi
     for channel in REQUIRED_CHANNELS:
         ch_id = channel.strip()
         if not ch_id: continue
         
         try:
             member = bot.get_chat_member(ch_id, user_id)
-            status = getattr(member, "status", None)
-            if status in ['left', 'kicked', None]:
-                not_subscribed.append(ch_id)
+            if member.status not in ['member', 'administrator', 'creator']:
+                return False
         except Exception as e:
-            logger.error(f"is_subscribed xatolik ({ch_id}): {e}")
-            # Xatolik bo'lsa (masalan bot admin emas), obunani tekshirib bo'lmaydi
-            # Bunday holatda foydalanuvchini o'tkazib yuborgan ma'qul
-            pass
+            logger.error(f"🚫 is_subscribed API Error ({ch_id}): {e}")
+            # API xatolik bo'lsa, xavfsizlik yuzasidan False qaytaramiz
+            return False
             
-    if not not_subscribed:
-        user_subscription_cache[user_id] = current_time
-        return True
-    return False
+    user_subscription_cache[user_id] = current_time
+    return True
 
 @bot.message_handler(content_types=['video', 'document'])
 def get_file_id(message):
