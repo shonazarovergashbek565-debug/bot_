@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 ADMIN_IDS = [int(i.strip()) for i in os.getenv('ADMIN_IDS', '').split(',') if i.strip()]
+logger.info(f"Yuklangan ADMIN_IDS: {ADMIN_IDS}")
 
 # Dastlabki kanallarni bazaga yuklash (agar baza bo'sh bo'lsa)
 def init_settings_from_env():
@@ -127,15 +128,22 @@ def run_flask():
 
 @bot.message_handler(commands=['admin'])
 def admin_panel(message):
-    if message.from_user.id not in ADMIN_IDS:
-        return
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Admin panel so'rovi: User ID {user_id}, Chat ID {chat_id}")
     
-    kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("📢 Kanallarni boshqarish", callback_data="manage_channels"))
-    kb.add(types.InlineKeyboardButton("🎬 Kino qo'shish", callback_data="add_movie_start"))
-    kb.add(types.InlineKeyboardButton("📊 Statistika", callback_data="admin_stats"))
-    
-    bot.send_message(message.chat.id, "👨‍💻 **Admin Panel**\n\nKerakli bo'limni tanlang:", reply_markup=kb)
+    # Adminni tekshirish (user_id yoki chat_id ADMIN_IDS ro'yxatida bo'lishi kerak)
+    if user_id in ADMIN_IDS or chat_id in ADMIN_IDS:
+        kb = types.InlineKeyboardMarkup()
+        kb.add(types.InlineKeyboardButton("📢 Kanallarni boshqarish", callback_data="manage_channels"))
+        kb.add(types.InlineKeyboardButton("🎬 Kino qo'shish", callback_data="add_movie_start"))
+        kb.add(types.InlineKeyboardButton("📊 Statistika", callback_data="admin_stats"))
+        
+        bot.send_message(chat_id, "👨‍💻 **Admin Panel**\n\nKerakli bo'limni tanlang:", reply_markup=kb)
+        logger.info(f"Admin panel ko'rsatildi: {user_id}")
+    else:
+        bot.reply_to(message, f"Siz admin emassiz! ❌\nSizning ID: `{user_id}`")
+        logger.warning(f"Ruxsat berilmadi: User ID {user_id}, Chat ID {chat_id}. ADMIN_IDS: {ADMIN_IDS}")
 
 @bot.callback_query_handler(func=lambda c: c.data == "manage_channels")
 def manage_channels(callback):
