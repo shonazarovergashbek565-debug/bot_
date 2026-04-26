@@ -50,7 +50,9 @@ def init_settings_from_env():
 database.init_db()
 init_settings_from_env()
 
-REQUIRED_CHANNELS, REQUIRED_CHANNEL_URLS = database.get_channels()
+# Majburiy obuna kanallari
+REQUIRED_CHANNELS = [i.strip() for i in os.getenv('REQUIRED_CHANNELS', '-1002643118573').split(',') if i.strip()]
+REQUIRED_CHANNEL_URLS = [i.strip() for i in os.getenv('REQUIRED_CHANNEL_URLS', 'https://t.me/+UkWjlZ2-SFoyZDBi').split(',') if i.strip()]
 
 CDN_BASE_URLS = [u.strip() for u in os.getenv('CDN_BASE_URLS', '').split(',') if u.strip()]
 QUEUE_NAME = os.getenv('QUEUE_NAME', 'movie_sending_queue')
